@@ -16,3 +16,13 @@ The code associated with each case study recreates the analyses and figures pres
 
 We hope you find our resource helpful and welcome your feedback for improving it! 
 
+
+
+References 
+
+Auker, L.A. and Barthelmess, E.L., 2020. Teaching R in the undergraduate ecology classroom: Approaches, lessons learned, and recommendations. Ecosphere, 11(4), p.e03060.
+
+Langen, T.A., Mourad, T., Grant, B.W., Gram, W.K., Abraham, B.J., Fernandez, D.S., Carroll, M., Nuding, A., Balch, J.K., Rodriguez, J. and Hampton, S.E., 2014. Using large public datasets in the undergraduate ecology classroom. Frontiers in Ecology and the Environment, 12(6), pp.362-363.
+
+O'Reilly, C.M., Gougis, R.D., Klug, J.L., Carey, C.C., Richardson, D.C., Bader, N.E., Soule, D.C., Castendyk, D., Meixner, T., Stomberg, J. and Weathers, K.C., 2017. Using large data sets for open-ended inquiry in undergraduate science classrooms. BioScience, 67(12), pp.1052-1061.
+
