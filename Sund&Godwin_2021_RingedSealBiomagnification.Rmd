@@ -1,0 +1,126 @@
+---
+title: "Trophic Position and Pollutant Concentration in Ringed Seals"
+Authors: "Kaiulani Sund and Sarah Godwin"
+output: html_notebook
+---
+
+## Description 
+Our study took place in four regions in the Canadian Arctic. Scientists measured the amount Persistent Organic Pollutants (POPs) in ringed seals. We are comparing Trophic Position and pollution concentration to see if there is a correlation, under the hypothesis that individuals foraging at a higher trophic level will have higher pollutant concentrations as a result of biomagnification. We focused on the pollutants PCB and DDT. 
+
+The dataset we used can be found here: https://open.canada.ca/data/en/dataset/d0613682-0862-45d8-a568-88d947f086e5
+
+
+
+## Installing and Loading Packages
+```{r}
+install.packages("tidyverse") #installing tidyverse package
+library("tidyverse") #loads the package
+install.packages("rstatix") #installing rstatix package
+library("rstatix") #loads the package
+```
+
+
+## Data Loading
+Seals data is put into a tibble table and we change N/A blocks to numeric values and change character columns to numeric values.
+```{r}
+Seals <- tibble(read.csv(file.choose(), header = TRUE)) #uploads the data as a tibble, header = True keeps the column title
+
+Seals = 
+  Seals %>% #choosing data set
+  mutate(TrophicPosition = as.numeric(as.character(TrophicPosition))) %>% #Changes N/A to a numeric value NA
+  mutate(Sum_DDTs = as.numeric(ifelse(Sum_DDTs == "N/A", "NA", as.numeric(as.character(Sum_DDTs))))) %>% #Changes N/A to a numeric value NA
+  mutate(Sum_PCBs = as.numeric(ifelse(Sum_PCBs == "N/A", "NA", as.numeric(as.character(Sum_PCBs))))) #Changes N/A to a numeric value NA 
+
+#you will get an error but the code works - it is saying there were character values (N/A) that were made into true NAs
+
+```
+
+
+## Descriptive Statistics
+In this section, we calculate the mean, max, and minimum value for each of the parameters of interest. 
+```{r}
+summary(Seals) #summarizes all columns in Seals Data - note that several additional columns would need to be made numeric before calculating meaningful summary statistics 
+
+Seals %>% #choosing data set
+summarize(meanTrophic = mean(TrophicPosition, na.rm = TRUE), maxTrophic = max(TrophicPosition, na.rm = TRUE), minTrophic = min(TrophicPosition, na.rm = TRUE)) #taking mean, max and min values of TrophicPostition na.rm removes N/A values
+
+Seals %>% #choosing data set
+summarize(meanPCB = mean(Sum_PCBs, na.rm = TRUE), maxPCB = max(Sum_PCBs, na.rm = TRUE), minPCB = min(Sum_PCBs, na.rm = TRUE)) #taking mean, max and min values of PCBs na.rm removes N/A values
+
+Seals %>% #choosing data set
+summarize(meanDDT = mean(Sum_DDTs, na.rm = TRUE), maxDDT = max(Sum_DDTs, na.rm = TRUE), minDDT = min(Sum_DDTs, na.rm = TRUE)) #taking mean, max and min values of DDTs na.rm removes N/A values
+```
+
+
+## Histogram
+Creating a Histogram to visualize the number of seals at each trophic level.
+```{r}
+Seals %>% #choosing data set
+ggplot(aes(x=TrophicPosition)) + geom_histogram(bins = 30) + #making a histogram showing the number of seals at each Trophic Position
+theme_bw() + #removing gray background
+ylab("number of individuals") #changing the name of the y axis
+```
+
+
+## Linear Regression Models
+**PCBs and Trophic Position**
+Creating a linear regression model to determine if there is a correlation between Trophic Position and PCB levels.
+```{r}
+Seals %>%
+ggplot(aes(x= TrophicPosition, y = Sum_PCBs)) + geom_point() + geom_smooth(method = "lm") + #makes linear regression, with data points and line of best fit
+theme_bw() + #removes gray background
+xlab("Trophic Position") + #changing the name of the x axis
+ylab("Total PCB Level (ng/g l.w.)") + #changing the name of the y axis #units are nanograms per gram lipid weight
+ylim(0, 4000) + #limits y axis to a range of 0 to 4000 #Note - although there are some PCB values above 4000, they do not have trophic position information  
+  theme(axis.line = element_line(colour = "black"),
+  panel.grid.major = element_blank(), #removes major gridlines
+  panel.grid.minor = element_blank()) + #removes minor gridlines
+  theme(axis.text.x = element_text(color = "black", size = 14)) + #changes color and size of x axis labels
+  theme(axis.title.x = element_text(face = "bold", color = "black", size = 14)) + #changes color and size of x axis title
+  theme(axis.text.y = element_text(color = "black", size = 14)) + #changes color and size of y axis labels 
+  theme(axis.title.y = element_text(face = "bold", color = "black", size = 14))  #changes color and size of y axis title
+
+
+summary(lm(Sum_PCBs ~ TrophicPosition, data = Seals)) #Are PCB Level and Trophic Position correlated
+
+#Result: There is a significant positive correlation between PCB levels and trophic position (p < 0.001)
+```
+
+**DDTs and Trophic Position**
+Creating a linear regression model to determine if there is a correlation between Trophic Position and DDT levels.
+```{r}
+lm(Sum_DDTs ~ TrophicPosition, data = Seals) %>% ##taking DDT and Trophic Position from Seals data for graph
+ggplot(aes(x= TrophicPosition, y = Sum_DDTs)) + geom_point() + geom_smooth(method = "lm") + #makes linear regression, with data points and line of best fit
+theme_bw() + #removes gray background
+xlab("Trophic Position") + #changing the name of the x axis
+ylab("Total DDT Level (ng/g l.w.)") + #changing the name of the y axis ##units are nanograms per gram lipid weight
+  theme(axis.line = element_line(colour = "black"), 
+  panel.grid.major = element_blank(), #removes major gridlines
+  panel.grid.minor = element_blank()) + #removes minor gridlines
+  theme(axis.text.x = element_text(color = "black", size = 14)) + #changes color and size of x axis labels
+  theme(axis.title.x = element_text(face = "bold", color = "black", size = 14)) + #changes color and size of x axis title
+  theme(axis.text.y = element_text(color = "black", size = 14)) + #changes color and size of y axis labels 
+  theme(axis.title.y = element_text(face = "bold", color = "black", size = 14))  #changes color and size of y axis title
+
+
+
+summary(lm(Sum_DDTs ~ TrophicPosition, data = Seals)) #Are DDT Level and Trophic Position correlated
+#Result: There is a significant positive correlation between DDT levels and trophic position (p < 0.001)
+```
+
+
+**DDTs and PCBs**
+Creating a linear regression model to determine if there is a correlation between PCB levels and DDT levels.
+```{r}
+Seals %>%
+ggplot(aes(x= Sum_PCBs, y = Sum_DDTs)) + geom_point() + geom_smooth(method = "lm") + #makes linear regression, with data points and line of best fit
+theme_bw() + #removes gray background
+xlab("Total PCB Level") + #changing the name of the x axis
+ylab("Total DDT Level")  + #changing the name of the y axis
+ylim(0, 6000) + #limits x axis to a range of 0 to 6000
+xlim(0, 6000) #limits y axis to a range of 0 to 6000
+
+summary(lm(Sum_DDTs ~ Sum_PCBs, data = Seals)) #Are DDT Level and Trophic Position correlated
+
+#Result: There is a significant positive correlation between PCB levels and DDT levels (p < 0.001)
+```
